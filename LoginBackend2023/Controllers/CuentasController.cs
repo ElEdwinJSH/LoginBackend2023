@@ -40,12 +40,12 @@ namespace LoginBackend2023.Controllers
             return BadRequest(resultado.Errors);
         }
 
-        private async Task<RespuestaAutenticacion> ConstruirToken(CredencialesUsuario credencialesUsuario)
+        private async Task<ActionResult<RespuestaAutenticacion>> ConstruirToken(CredencialesUsuario credencialesUsuario)
         {
             var claims = new List<Claim>()
-            {
-                new Claim("email",credencialesUsuario.Email)
-            };
+        {
+            new Claim("email",credencialesUsuario.Email)
+        };
             var usuario = await userManager.FindByEmailAsync(credencialesUsuario.Email);
             var claimsRoles = await userManager.GetClaimsAsync(usuario);
 
@@ -60,40 +60,42 @@ namespace LoginBackend2023.Controllers
 
             return new RespuestaAutenticacion
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(securityToken),
-                Expiracion = expiracion,
+                token = new JwtSecurityTokenHandler().WriteToken(securityToken),
+                expiracion = expiracion,
             };
         }
+
         [HttpGet("RenovarToken")]
-        [Authorize(AuthenticationSchemes =  JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 
-        public async Task<RespuestaAutenticacion> Renovar()
+        public async Task<ActionResult<RespuestaAutenticacion>> Renovar()
         {
-            var emailClaim = HttpContext.User.Claims.Where(x => x.Type == "email").FirstOrDefault();
-            var credencialesUsuario = new CredencialesUsuario()
-            {
-                Email = emailClaim.Value
+            var emailClaims = HttpContext.User.Claims.Where(x => x.Type == "email").FirstOrDefault();
+            var credencialesUsuario = new CredencialesUsuario() { Email = emailClaims.Value };
 
-        };
-        return await ConstruirToken(credencialesUsuario);
+            return await ConstruirToken(credencialesUsuario);
         }
 
         [HttpPost("Login")]
         public async Task<ActionResult<RespuestaAutenticacion>> Login(CredencialesUsuario credencialesUsuario)
         {
-            var resultado = await signInManager.PasswordSignInAsync(credencialesUsuario.Email, credencialesUsuario.Password, isPersistent: false, lockoutOnFailure: false);
-
+            var resultado = await signInManager.PasswordSignInAsync(
+                credencialesUsuario.Email,
+                credencialesUsuario.Password,
+                isPersistent: false,
+                lockoutOnFailure: false);
             if (resultado.Succeeded)
             {
                 return await ConstruirToken(credencialesUsuario);
             }
             else
             {
-                return BadRequest("Login incorrecto");
+                return BadRequest("Login Incorrecto");
             }
         }
+
+
     }
-
-
 }
+
 
