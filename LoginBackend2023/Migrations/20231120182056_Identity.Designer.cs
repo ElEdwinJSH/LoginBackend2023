@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LoginBackend2023.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20231120013010_Identity")]
+    [Migration("20231120182056_Identity")]
     partial class Identity
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
