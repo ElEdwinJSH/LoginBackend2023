@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -104,35 +105,29 @@ namespace LoginBackend2023.Controllers
 
 
         [HttpPost("JuegoFavorito")]
-        public async Task<ActionResult> JuegosFavoritos(JuegoFavorito juego)
+        public  ActionResult AgregarJuegoFavorito([FromBody]JuegoFavorito juego)
             {
-            var usuarioId = userManager.GetUserId(User);
-
-            var juegoFavorito = new JuegoFavorito
+            if (juego == null)
             {
-                UsuarioId = usuarioId,
-                JuegoId = juego.JuegoId,
-                // Puedes agregar más propiedades según sea necesario
-            };
+                return BadRequest("Datos inválidos");
+            }
 
-            dbContext.JuegosFavoritos.Add(juegoFavorito);
-            await dbContext.SaveChangesAsync();
+            // Puedes realizar validaciones adicionales aquí
+
+            dbContext.JuegosFavoritos.Add(juego);
+            dbContext.SaveChanges();
 
             return Ok();
 
         }
 
 
-        [HttpGet("ObtenerJuegosFavoritos")]
-        public ActionResult<IEnumerable<JuegoFavorito>> ObtenerJuegosFavoritos()
+        [HttpGet("{userId}")]
+        public IActionResult ObtenerJuegosFavoritos(string userId)
         {
-            var usuarioId = userManager.GetUserId(User);
             var juegosFavoritos = dbContext.JuegosFavoritos
-          .Where(j => j.UsuarioId == usuarioId)
-          .ToList();
-
-            // Lógica para obtener los juegos favoritos del usuario desde la base de datos
-            // ...
+                .Where(j => j.UserId == userId)
+                .ToList();
 
             return Ok(juegosFavoritos);
         }
