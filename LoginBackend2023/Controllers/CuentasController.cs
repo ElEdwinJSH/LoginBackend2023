@@ -17,13 +17,19 @@ namespace LoginBackend2023.Controllers
         private readonly UserManager<IdentityUser> userManager;
         private readonly IConfiguration configuration;
         private readonly SignInManager<IdentityUser> signInManager;
+        private readonly ApplicationDbContext dbContext;
 
-        public CuentasController(UserManager<IdentityUser> userManager, IConfiguration configuration, SignInManager<IdentityUser> signInManager)
+        public CuentasController(UserManager<IdentityUser> userManager, IConfiguration configuration, SignInManager<IdentityUser> signInManager, ApplicationDbContext dbContext)
         {
             this.userManager = userManager;
             this.configuration = configuration;
             this.signInManager = signInManager;
+            this.dbContext = dbContext;
         }
+
+
+
+
         [HttpPost("registrar")]
         public async Task<ActionResult<RespuestaAutenticacion>> Registrar(CredencialesUsuario credencialesUsuario)
         {
@@ -94,6 +100,43 @@ namespace LoginBackend2023.Controllers
                 return BadRequest("Login Incorrecto");
             }
         }
+
+
+
+        [HttpPost("JuegoFavorito")]
+        public async Task<ActionResult> JuegosFavoritos(JuegoFavorito juego)
+            {
+            var usuarioId = userManager.GetUserId(User);
+
+            var juegoFavorito = new JuegoFavorito
+            {
+                UsuarioId = usuarioId,
+                JuegoId = juego.JuegoId,
+                // Puedes agregar más propiedades según sea necesario
+            };
+
+            dbContext.JuegosFavoritos.Add(juegoFavorito);
+            await dbContext.SaveChangesAsync();
+
+            return Ok();
+
+        }
+
+
+        [HttpGet("ObtenerJuegosFavoritos")]
+        public ActionResult<IEnumerable<JuegoFavorito>> ObtenerJuegosFavoritos()
+        {
+            var usuarioId = userManager.GetUserId(User);
+            var juegosFavoritos = dbContext.JuegosFavoritos
+          .Where(j => j.UsuarioId == usuarioId)
+          .ToList();
+
+            // Lógica para obtener los juegos favoritos del usuario desde la base de datos
+            // ...
+
+            return Ok(juegosFavoritos);
+        }
+
 
 
     }

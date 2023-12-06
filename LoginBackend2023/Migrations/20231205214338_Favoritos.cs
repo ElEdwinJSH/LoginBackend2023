@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace LoginBackend2023.Migrations
 {
-    public partial class Identity : Migration
+    public partial class Favoritos : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -46,6 +46,20 @@ namespace LoginBackend2023.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "JuegosFavoritos",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UsuarioId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    JuegoId = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_JuegosFavoritos", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -210,6 +224,9 @@ namespace LoginBackend2023.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "JuegosFavoritos");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
