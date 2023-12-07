@@ -113,6 +113,13 @@ namespace LoginBackend2023.Controllers
             }
 
             // Puedes realizar validaciones adicionales aquí
+            var juegoExistente = dbContext.JuegosFavoritos
+      .FirstOrDefault(j => j.UserId == juego.UserId && j.JuegoId == juego.JuegoId);
+
+            if (juegoExistente != null)
+            {
+                return BadRequest("El juego ya está en la lista de favoritos");
+            }
 
             dbContext.JuegosFavoritos.Add(juego);
             dbContext.SaveChanges();
@@ -120,6 +127,34 @@ namespace LoginBackend2023.Controllers
             return Ok();
 
         }
+
+
+
+        [HttpDelete("EliminarJuegoFavorito")]
+        public ActionResult EliminarJuegoFavorito([FromBody] JuegoFavorito juego)
+        {
+            if (juego == null)
+            {
+                return BadRequest("Datos inválidos");
+            }
+
+            // Puedes realizar validaciones adicionales aquí
+            var juegoExistente = dbContext.JuegosFavoritos
+     .FirstOrDefault(j => j.UserId == juego.UserId && j.JuegoId == juego.JuegoId);
+
+            if (juegoExistente == null)
+            {
+                return NotFound("El juego no se encuentra en la lista de favoritos");
+            }
+
+
+            dbContext.JuegosFavoritos.Remove(juegoExistente);
+            dbContext.SaveChanges();
+
+            return Ok();
+
+        }
+
 
 
         [HttpGet("{userId}")]
